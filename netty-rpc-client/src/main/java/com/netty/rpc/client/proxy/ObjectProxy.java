@@ -29,16 +29,17 @@ public class ObjectProxy<T, P> implements InvocationHandler, RpcService<T, P, Se
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (Object.class == method.getDeclaringClass()) {
             String name = method.getName();
-            if ("equals".equals(name)) {
-                return proxy == args[0];
-            } else if ("hashCode".equals(name)) {
-                return System.identityHashCode(proxy);
-            } else if ("toString".equals(name)) {
-                return proxy.getClass().getName() + "@" +
-                        Integer.toHexString(System.identityHashCode(proxy)) +
-                        ", with InvocationHandler " + this;
-            } else {
-                throw new IllegalStateException(String.valueOf(method));
+            switch (name) {
+                case "equals":
+                    return proxy == args[0];
+                case "hashCode":
+                    return System.identityHashCode(proxy);
+                case "toString":
+                    return proxy.getClass().getName() + "@" +
+                            Integer.toHexString(System.identityHashCode(proxy)) +
+                            ", with InvocationHandler " + this;
+                default:
+                    throw new IllegalStateException(String.valueOf(method));
             }
         }
 
@@ -56,8 +57,8 @@ public class ObjectProxy<T, P> implements InvocationHandler, RpcService<T, P, Se
             for (int i = 0; i < method.getParameterTypes().length; ++i) {
                 logger.debug(method.getParameterTypes()[i].getName());
             }
-            for (int i = 0; i < args.length; ++i) {
-                logger.debug(args[i].toString());
+            for (Object arg : args) {
+                logger.debug(arg.toString());
             }
         }
 
@@ -103,11 +104,11 @@ public class ObjectProxy<T, P> implements InvocationHandler, RpcService<T, P, Se
         if (logger.isDebugEnabled()) {
             logger.debug(className);
             logger.debug(methodName);
-            for (int i = 0; i < parameterTypes.length; ++i) {
-                logger.debug(parameterTypes[i].getName());
+            for (Class parameterType : parameterTypes) {
+                logger.debug(parameterType.getName());
             }
-            for (int i = 0; i < args.length; ++i) {
-                logger.debug(args[i].toString());
+            for (Object arg : args) {
+                logger.debug(arg.toString());
             }
         }
 

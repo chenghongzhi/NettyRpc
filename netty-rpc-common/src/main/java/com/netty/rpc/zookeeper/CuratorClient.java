@@ -15,7 +15,7 @@ import org.apache.zookeeper.Watcher;
 import java.util.List;
 
 public class CuratorClient {
-    private CuratorFramework client;
+    private final CuratorFramework client;
 
     public CuratorClient(String connectString, String namespace, int sessionTimeout, int connectionTimeout) {
         client = CuratorFrameworkFactory.builder().namespace(namespace).connectString(connectString)

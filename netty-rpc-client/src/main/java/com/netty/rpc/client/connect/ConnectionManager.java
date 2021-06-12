@@ -45,11 +45,11 @@ public class ConnectionManager {
     }
 
     private static class SingletonHolder {
-        private static final ConnectionManager instance = new ConnectionManager();
+        private static final ConnectionManager INSTANCE = new ConnectionManager();
     }
 
     public static ConnectionManager getInstance() {
-        return SingletonHolder.instance;
+        return SingletonHolder.INSTANCE;
     }
 
     public void updateConnectedServer(List<RpcProtocol> serviceList) {
@@ -59,10 +59,7 @@ public class ConnectionManager {
         if (serviceList != null && serviceList.size() > 0) {
             // Update local server nodes cache
             HashSet<RpcProtocol> serviceSet = new HashSet<>(serviceList.size());
-            for (int i = 0; i < serviceList.size(); ++i) {
-                RpcProtocol rpcProtocol = serviceList.get(i);
-                serviceSet.add(rpcProtocol);
-            }
+            serviceSet.addAll(serviceList);
 
             // Add new server info
             for (final RpcProtocol rpcProtocol : serviceSet) {
@@ -152,11 +149,11 @@ public class ConnectionManager {
         }
     }
 
-    private boolean waitingForHandler() throws InterruptedException {
+    private void waitingForHandler() throws InterruptedException {
         lock.lock();
         try {
             logger.warn("Waiting for available service");
-            return connected.await(this.waitTimeout, TimeUnit.MILLISECONDS);
+            connected.await(this.waitTimeout, TimeUnit.MILLISECONDS);
         } finally {
             lock.unlock();
         }

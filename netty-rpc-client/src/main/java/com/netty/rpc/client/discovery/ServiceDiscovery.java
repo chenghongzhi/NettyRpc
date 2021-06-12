@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class ServiceDiscovery {
     private static final Logger logger = LoggerFactory.getLogger(ServiceDiscovery.class);
-    private CuratorClient curatorClient;
+    private final CuratorClient curatorClient;
 
     public ServiceDiscovery(String registryAddress) {
         this.curatorClient = new CuratorClient(registryAddress);
@@ -37,7 +37,7 @@ public class ServiceDiscovery {
             // Add watch listener
             curatorClient.watchPathChildrenNode(Constant.ZK_REGISTRY_PATH, new PathChildrenCacheListener() {
                 @Override
-                public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent) throws Exception {
+                public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent) {
                     PathChildrenCacheEvent.Type type = pathChildrenCacheEvent.getType();
                     ChildData childData = pathChildrenCacheEvent.getData();
                     switch (type) {
@@ -47,11 +47,14 @@ public class ServiceDiscovery {
                             break;
                         case CHILD_ADDED:
                             getServiceAndUpdateServer(childData, PathChildrenCacheEvent.Type.CHILD_ADDED);
+                            break;
                         case CHILD_UPDATED:
                             getServiceAndUpdateServer(childData, PathChildrenCacheEvent.Type.CHILD_UPDATED);
+                            break;
                         case CHILD_REMOVED:
                             getServiceAndUpdateServer(childData, PathChildrenCacheEvent.Type.CHILD_REMOVED);
                             break;
+                        default:break;
                     }
                 }
             });
@@ -73,7 +76,7 @@ public class ServiceDiscovery {
             }
             logger.debug("Service node data: {}", dataList);
             //Update the service info based on the latest data
-            UpdateConnectedServer(dataList);
+            updateConnectedServer(dataList);
         } catch (Exception e) {
             logger.error("Get node exception: " + e.getMessage());
         }
@@ -87,7 +90,7 @@ public class ServiceDiscovery {
         updateConnectedServer(rpcProtocol, type);
     }
 
-    private void UpdateConnectedServer(List<RpcProtocol> dataList) {
+    private void updateConnectedServer(List<RpcProtocol> dataList) {
         ConnectionManager.getInstance().updateConnectedServer(dataList);
     }
 

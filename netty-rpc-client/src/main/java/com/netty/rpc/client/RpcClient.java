@@ -27,8 +27,8 @@ import java.util.concurrent.TimeUnit;
 public class RpcClient implements ApplicationContextAware, DisposableBean {
     private static final Logger logger = LoggerFactory.getLogger(RpcClient.class);
 
-    private ServiceDiscovery serviceDiscovery;
-    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(16, 16,
+    private final ServiceDiscovery serviceDiscovery;
+    private static final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(16, 16,
             600L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1000));
 
     public RpcClient(String address) {
@@ -59,7 +59,7 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
         this.stop();
     }
 
